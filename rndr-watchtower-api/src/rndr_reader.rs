@@ -13,7 +13,9 @@ pub type RndrPathResult = Result<String, String>;
 const RNDR_LOG_EXTENSION: &str = "\\OtoyRndrNetwork\\rndr_log.txt";
 
 impl RndrReader {
-	// get_rndr_log_path - gets the path to the rndr logs from appdata on windows.
+	/// get_rndr_log_path - gets the path to the rndr logs from appdata on windows.
+	///
+	/// returns ->  Result<String, String>
 	pub fn get_rndr_log_path() -> RndrPathResult {
 		let base_dirs = BaseDirs::new().unwrap();
 		let local_app_data_path = base_dirs.data_local_dir().to_str();
@@ -28,7 +30,9 @@ impl RndrReader {
 		}
 	}
 
-	// new_log_reader - creates a new BufReader (to reduce repetitive code writing for readers)
+	/// new_log_reader - creates a new BufReader (to reduce repetitive code writing for readers)
+	///
+	/// returns -> BufReader<File>
 	pub fn new_log_reader() -> BufReader<File> {
 		let log_file = RndrReader::get_rndr_log_path()
 			.expect("error: rndr log could not be found.");
@@ -38,15 +42,22 @@ impl RndrReader {
 	}
 
 	/// read_rndr_log - reads all the lines of the rndr log.
-	/// Returns a union Result.
+	///
+	/// returns -> Result<()>.
 	pub fn get_latest_update() -> std::io::Result<()> {
 		let mut str_buffer = String::new();
 		let mut reader = RndrReader::new_log_reader();
+
 		reader.read_to_string(&mut str_buffer).unwrap();
+
 		let latest_line = reader.lines().last().unwrap();
 		RndrTime::check_new_event_update(latest_line?);
+
 		Ok(())
 	}
+	/// read_rndr_log - reads the rndr log once through
+	///
+	/// returns -> String
 	pub fn read_rndr_log() -> String {
 		let mut str_buffer = String::new();
 		let mut reader = RndrReader::new_log_reader();

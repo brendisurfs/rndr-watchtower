@@ -18,22 +18,26 @@ struct RndrLog {
 }
 
 fn main() {
-	let (sender, receiver) = channel();
+	let (sx, rx) = channel();
 
-	// // watches our rndr logs for any changes.
-	let mut watcher = watcher(sender, Duration::from_secs(10)).unwrap();
+	let watch_duration = Duration::from_millis(10);
 	let watch_path = RndrReader::get_rndr_log_path().unwrap();
+
+	let mut watcher = watcher(sx, watch_duration).unwrap();
+
 	watcher
 		.watch(watch_path, RecursiveMode::NonRecursive)
 		.unwrap();
 
-	RndrStats::new_data();
+	let registry_data = RndrStats::get_registry_data();
+
+	// when the program starts for the firs time, print the whole files info as a string.
+	println!("{:#?}", registry_data);
 	println!("this is the log so far: \n {}", RndrReader::read_rndr_log());
 	println!("minutes spent rendering {:?}", RndrTime::time_in_minutes());
 
-	// watch for file changes here
 	loop {
-		match receiver.recv() {
+		match rx.recv() {
 			Ok(DebouncedEvent::Write(_)) => {
 				RndrReader::get_latest_update().unwrap();
 				println!(
@@ -41,8 +45,11 @@ fn main() {
 					RndrTime::time_in_minutes()
 				);
 			}
-			Err(e) => println!("watch error: {:?}", e),
-			_ => (),
+			// incase it errors
+			Ok(DebouncedEvent::Error(e, _)) => {
+				println!("{e}");
+			}
+			_ => print!("unhandled event occured, does not fit match criteria"),
 		}
 	}
 }

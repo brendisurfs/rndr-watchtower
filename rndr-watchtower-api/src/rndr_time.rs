@@ -3,11 +3,11 @@ use std::io::BufRead;
 use crate::rndr_reader::RndrReader;
 
 #[derive(Debug)]
-struct RndrLog {
-	date: String,
-	time: String,
-	status_code: String,
-	msg: String,
+pub struct RndrLog {
+	pub date: String,
+	pub time: String,
+	pub status_code: String,
+	pub msg: String,
 }
 
 #[derive(Debug)]
@@ -52,9 +52,6 @@ impl RndrTime {
 	}
 
 	pub fn check_new_event_update(line: String) {
-		/*
-		format: 2022-03-09 16:31:50 INFO: 1 usable gpus detected
-		*/
 		let mut split_line = line.splitn(4, " ");
 
 		let log_date =
