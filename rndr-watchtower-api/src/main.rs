@@ -34,22 +34,25 @@ fn main() {
 	// when the program starts for the firs time, print the whole files info as a string.
 	println!("{:#?}", registry_data);
 	println!("this is the log so far: \n {}", RndrReader::read_rndr_log());
-	println!("minutes spent rendering {:?}", RndrTime::time_in_minutes());
+	println!(
+		"minutes spent rendering: {:?}",
+		RndrTime::total_time_in_minutes()
+	);
 
 	loop {
 		match rx.recv() {
 			Ok(DebouncedEvent::Write(_)) => {
 				RndrReader::get_latest_update().unwrap();
 				println!(
-					"{:?} minutes spent rendering",
-					RndrTime::time_in_minutes()
+					"minutes spent rendering: {:?}\n",
+					RndrTime::total_time_in_minutes()
 				);
 			}
 			// incase it errors
 			Ok(DebouncedEvent::Error(e, _)) => {
 				println!("{e}");
 			}
-			_ => print!("unhandled event occured, does not fit match criteria"),
+			_ => (),
 		}
 	}
 }

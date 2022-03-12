@@ -1,3 +1,4 @@
+use registry::value::Data;
 use registry::{Hive, Security};
 
 #[derive(Debug)]

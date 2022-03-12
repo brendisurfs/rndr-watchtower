@@ -45,12 +45,13 @@ impl RndrReader {
 	///
 	/// returns -> Result<()>.
 	pub fn get_latest_update() -> std::io::Result<()> {
-		let mut str_buffer = String::new();
-		let mut reader = RndrReader::new_log_reader();
+		let reader = RndrReader::new_log_reader();
+		let latest_line = reader
+			.lines()
+			.last()
+			.expect("ERROR! could not read the last line of the file!");
 
-		reader.read_to_string(&mut str_buffer).unwrap();
-
-		let latest_line = reader.lines().last().unwrap();
+		println!("{:?}", latest_line);
 		RndrTime::check_new_event_update(latest_line?);
 
 		Ok(())
@@ -61,7 +62,9 @@ impl RndrReader {
 	pub fn read_rndr_log() -> String {
 		let mut str_buffer = String::new();
 		let mut reader = RndrReader::new_log_reader();
-		reader.read_to_string(&mut str_buffer).unwrap();
+		reader
+			.read_to_string(&mut str_buffer)
+			.expect("could not read to string!");
 		str_buffer
 	}
 }
