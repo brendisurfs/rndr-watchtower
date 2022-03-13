@@ -16,17 +16,30 @@ impl RndrReader {
 	/// get_rndr_log_path - gets the path to the rndr logs from appdata on windows.
 	///
 	/// returns ->  Result<String, String>
-	pub fn get_rndr_log_path() -> RndrPathResult {
+	pub fn get_rndr_log_file() -> RndrPathResult {
 		let base_dirs = BaseDirs::new().unwrap();
 		let local_app_data_path = base_dirs.data_local_dir().to_str();
 
 		match local_app_data_path {
 			None => Err("error finding local data path".to_owned()),
 			Some(datapath) => {
-				let complete_appdata_path =
-					format!("{}{}", datapath.to_owned(), RNDR_LOG_EXTENSION);
+				let complete_appdata_path = format!(
+					"{}{}",
+					datapath.to_owned(),
+					RNDR_LOG_EXTENSION
+				);
 				Ok(complete_appdata_path)
 			}
+		}
+	}
+
+	pub fn get_rndr_log_dir() -> RndrPathResult {
+		let base_dirs = BaseDirs::new().unwrap();
+		let local_app_data_path = base_dirs.data_local_dir().to_str();
+
+		match local_app_data_path {
+			None => Err("error finding local data path".to_owned()),
+			Some(datapath) => Ok(datapath.to_string()),
 		}
 	}
 
@@ -34,7 +47,7 @@ impl RndrReader {
 	///
 	/// returns -> BufReader<File>
 	pub fn new_log_reader() -> BufReader<File> {
-		let log_file = RndrReader::get_rndr_log_path()
+		let log_file = RndrReader::get_rndr_log_file()
 			.expect("error: rndr log could not be found.");
 		let file = File::open(log_file).expect("error: file not found!");
 		let reader = BufReader::new(file);
@@ -46,13 +59,11 @@ impl RndrReader {
 	/// returns -> Result<()>.
 	pub fn get_latest_update() -> std::io::Result<()> {
 		let reader = RndrReader::new_log_reader();
-		let latest_line = reader
-			.lines()
-			.last()
-			.expect("ERROR! could not read the last line of the file!");
+		let line_result =
+			reader.lines().last().unwrap_or(Ok(" ".to_string()));
+		let latest_line = line_result.unwrap_or(" ".to_string());
 
-		println!("{:?}", latest_line);
-		RndrTime::check_new_event_update(latest_line?);
+		RndrTime::check_new_event_update(latest_line);
 
 		Ok(())
 	}
@@ -62,8 +73,7 @@ impl RndrReader {
 	pub fn read_rndr_log() -> String {
 		let mut str_buffer = String::new();
 		let mut reader = RndrReader::new_log_reader();
-		reader
-			.read_to_string(&mut str_buffer)
+		reader.read_to_string(&mut str_buffer)
 			.expect("could not read to string!");
 		str_buffer
 	}
