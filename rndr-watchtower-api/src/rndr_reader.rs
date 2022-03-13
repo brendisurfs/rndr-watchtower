@@ -39,7 +39,13 @@ impl RndrReader {
 
 		match local_app_data_path {
 			None => Err("error finding local data path".to_owned()),
-			Some(datapath) => Ok(datapath.to_string()),
+			Some(datapath) => {
+				let otoy_appdata_directory = format!(
+					"{}\\OtoyRndrNetwork",
+					datapath.to_owned()
+				);
+				Ok(otoy_appdata_directory)
+			}
 		}
 	}
 

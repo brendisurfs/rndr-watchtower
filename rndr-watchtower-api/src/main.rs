@@ -24,6 +24,8 @@ fn main() {
 	let watch_path = RndrReader::get_rndr_log_dir().unwrap();
 	// let watch_log = RndrReader::get_rndr_log_file().unwrap();
 
+	println!("{}", watch_path);
+
 	let mut watcher = watcher(sx, watch_duration).unwrap();
 
 	watcher
