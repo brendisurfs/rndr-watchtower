@@ -1,4 +1,3 @@
-use registry::value::Data;
 use registry::{Hive, Security};
 
 #[derive(Debug)]
@@ -45,8 +44,10 @@ impl RndrStats {
 		let runtime_rndr = rndr_registry.value("Runtime_RNDR").unwrap();
 		let restarts_rndr = rndr_registry.value("Restarts_RNDR").unwrap();
 		let jobs_completed = rndr_registry.value("JOBS_COMPLETED").unwrap();
-		let failure_metrics = rndr_registry.value("FAILURE_METRICS").unwrap();
-		let runtime_watchdog = rndr_registry.value("Runtime_Watchdog").unwrap();
+		let failure_metrics =
+			rndr_registry.value("FAILURE_METRICS").unwrap();
+		let runtime_watchdog =
+			rndr_registry.value("Runtime_Watchdog").unwrap();
 
 		let octane_gpu_settings =
 			rndr_registry.value("OCTANE_GPU_SETTINGS").unwrap();
@@ -66,7 +67,8 @@ impl RndrStats {
 			runtime_watchdog: runtime_watchdog.to_string(),
 			should_launch_beta: should_launch_beta.to_string(),
 			octane_gpu_settings: octane_gpu_settings.to_string(),
-			last_beta_launch_check_timestamp: last_beta_timestamp.to_string(),
+			last_beta_launch_check_timestamp: last_beta_timestamp
+				.to_string(),
 		};
 
 		rndr_stats
