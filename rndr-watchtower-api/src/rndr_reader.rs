@@ -14,7 +14,6 @@ const RNDR_LOG_EXTENSION: &str = "\\OtoyRndrNetwork\\rndr_log.txt";
 
 impl RndrReader {
 	/// get_rndr_log_path - gets the path to the rndr logs from appdata on windows.
-	///
 	/// returns ->  Result<String, String>
 	pub fn get_rndr_log_file() -> RndrPathResult {
 		let base_dirs = BaseDirs::new().unwrap();
@@ -50,7 +49,6 @@ impl RndrReader {
 	}
 
 	/// new_log_reader - creates a new BufReader (to reduce repetitive code writing for readers)
-	///
 	/// returns -> BufReader<File>
 	pub fn new_log_reader() -> BufReader<File> {
 		let log_file = RndrReader::get_rndr_log_file()
@@ -61,7 +59,6 @@ impl RndrReader {
 	}
 
 	/// read_rndr_log - reads all the lines of the rndr log.
-	///
 	/// returns -> Result<()>.
 	pub fn get_latest_update() -> std::io::Result<()> {
 		let reader = RndrReader::new_log_reader();
@@ -74,7 +71,6 @@ impl RndrReader {
 		Ok(())
 	}
 	/// read_rndr_log - reads the rndr log once through
-	///
 	/// returns -> String
 	pub fn read_rndr_log() -> String {
 		let mut str_buffer = String::new();

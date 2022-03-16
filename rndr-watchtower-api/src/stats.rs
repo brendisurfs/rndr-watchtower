@@ -34,6 +34,8 @@ impl RndrStats {
 		let should_launch_beta =
 			rndr_registry.value("SHOULD_LAUNCH_BETA").unwrap();
 
+		// TODO
+		// fix these so that we arent unwrapping on them, unwrap_or may be a more descriptive way of handling this.
 		let hw = rndr_registry.value("HW").unwrap();
 		let score = rndr_registry.value("SCORE").unwrap();
 		let node_id = rndr_registry.value("NODEID").unwrap();
