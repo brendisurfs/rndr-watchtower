@@ -5,6 +5,7 @@ use std::{sync::mpsc::channel, time::Duration};
 pub mod rndr_reader;
 pub mod rndr_time;
 mod stats;
+mod web_api;
 use stats::RndrStats;
 
 use crate::{rndr_reader::RndrReader, rndr_time::RndrTime};
@@ -37,8 +38,10 @@ fn main() {
 	let registry_data = RndrStats::get_registry_data();
 
 	// when the program starts for the firs time, print the whole files info as a string.
-	println!("{:#?}", registry_data);
+	println!("{:#?}", registry_data); // NOTE THIS SHOULD NOT BE PRINTED, ONLY PASS AN OK
 	println!("this is the log so far: \n {}", RndrReader::read_rndr_log());
+
+	// NOTE this goes to the frontend through the app API
 	println!(
 		"minutes spent rendering: {:?}",
 		RndrTime::total_time_in_minutes()
@@ -48,6 +51,8 @@ fn main() {
 		match rx.recv() {
 			Ok(DebouncedEvent::Write(event)) => {
 				println!("Write Event: {:#?}", event);
+
+				// NOTE this goes to the frontend of the app.
 				RndrReader::get_latest_update().unwrap();
 				println!(
 					"minutes spent rendering: {:?}\n",
@@ -57,6 +62,8 @@ fn main() {
 			Ok(DebouncedEvent::Create(e)) => {
 				let path_buf = e.as_path();
 				println!("Create event called!: {:#?}", path_buf);
+
+				// NOTE this goes to the frontend of the app.
 				RndrReader::get_latest_update().unwrap();
 				println!(
 					"minutes spent rendering: {:?}\n",
@@ -70,8 +77,9 @@ fn main() {
 			Err(e) => {
 				eprintln!("error occurred: {:?}", e);
 			}
-			_ => println!(
-				"event occured that is not covered in this scope.",
+			Ok(event) => println!(
+				"event occured that is not covered in this scope.{:?}",
+				event
 			),
 		}
 	}
