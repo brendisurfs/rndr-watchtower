@@ -1,3 +1,4 @@
+
 # RNDR WATCHTOWER
 by Brendan Prednis
 
@@ -14,4 +15,5 @@ This is a really lofty goal, but I really enjoy interacting with the community a
 
 
 ### Notes 
-This project was directly influenced by rndr-stats.com and the RNDR Watchdog script. I have spent many hours reading through the watchdog script, understanding where and why things are being called, and looking at the source code for the rndr-stats.com website in order to gain a better understanding of how things are being displayed. 
+This project was directly influenced by rndr-stats.com and the RNDR Watchdog script. I have spent many hours reading through the watchdog script, understanding where and why things are being called, and looking at the source code for the rndr-stats.com website in order to gain a better understanding of how things are being displayed
+[CURRENTLY IN PROGRESS]
