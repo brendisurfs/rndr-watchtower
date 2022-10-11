@@ -48,6 +48,11 @@ fn main() {
 
 	loop {
 		match rx.recv() {
+            /*
+			* Send: 
+			* latest update RndrLog
+			* total jobs completed
+			*/
 			Ok(DebouncedEvent::Write(event)) => {
 				RndrReader::get_latest_update().unwrap(); 	// NOTE this goes to the frontend of the app.
 				println!("Write Event: {:#?}", event); 		// NOTE this can probably be removed, not sure if the end user want to see the event type.
@@ -55,7 +60,13 @@ fn main() {
 					"minutes spent rendering: {:?}\n",
 					RndrTime::total_time_in_minutes()
 				);
+                println!("jobs completed: {}", registry_data.jobs_completed);
 			}
+            /*
+			 * Send: 
+			 * RndrLog latest update
+			 * total jobs completed.
+			 */
 			Ok(DebouncedEvent::Create(e)) => {
 				let path_buf = e.as_path();
 				println!("Create event called!: {:#?}", path_buf);
@@ -67,12 +78,17 @@ fn main() {
 					RndrTime::total_time_in_minutes()
 				);
 			}
-			// Covers case of DebounceEvent errors, NOT a match error.
+			/* 
+			* Covers case of DebounceEvent errors, 
+			* NOT a match error.
+			*/
 			Ok(DebouncedEvent::Error(e, _)) => {
 				println!("{e}");
 			}
-			// UNKNOWN DebounceEvent case, just in case it is useful.
-			// This may be taken out later, so keep this comment for reference.
+			/* 
+			* UNKNOWN DebounceEvent case, just in case it is useful.
+			* This may be taken out later, so keep this comment for reference. 
+			*/
 			Ok(event) => println!(
 				"event occured that is not covered in this scope.{:?}",
 				event
