@@ -2,6 +2,7 @@ use regex::Regex;
 use std::io::BufRead;
 
 use crate::rndr_reader::RndrReader;
+use std::error::Error;
 
 #[derive(Debug)]
 pub struct RndrLog {
@@ -64,7 +65,7 @@ impl RndrTime {
 		time_in_minutes as i64
 	}
 
-	pub fn check_new_event_update(line: String) {
+	pub fn check_new_event_update(line: String) -> Result<RndrLog, Box<dyn Error>> {
 		let local_line = line.clone();
 		let mut split_line = local_line.splitn(4, " ");
 
@@ -83,17 +84,17 @@ impl RndrTime {
 			log_date_str = log_date_option.unwrap().to_string();
 		} else if !is_logdate_valid {
 			log_date_str =
-				"[ EERROR ] could not read log date.".to_string();
+				"[ ERROR ] could not read log date.".to_string();
 		}
 
 		let log_time = split_line
 			.next()
-			.unwrap_or("[ ERROR ] could not read log time")
+			.unwrap_or("could not read log time")
 			.to_string();
 
 		let log_status_code = split_line
 			.next()
-			.unwrap_or("[ ERROR ] could not read log status code")
+			.unwrap_or("could not read log status code")
 			.split(":")
 			.nth(0)
 			.unwrap_or("no status code found")
@@ -101,7 +102,7 @@ impl RndrTime {
 
 		let log_msg = split_line
 			.next()
-			.unwrap_or("[ ERROR ] could not read the log message")
+			.unwrap_or("could not read the log message")
 			.to_string();
 
 		let render_time = RndrTime::get_render_time(&log_msg).to_owned();
@@ -114,6 +115,6 @@ impl RndrTime {
 			render_time,
 		};
 
-		println!("{:#?}", new_line);
+        Ok(new_line)
 	}
 }
