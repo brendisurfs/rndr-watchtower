@@ -20,39 +20,37 @@ pub struct RndrStats {
 }
 
 impl RndrStats {
-	/// new_data - retrieves the RNDR data from the Windows Registry.
-	pub fn get_registry_data() -> RndrStats {
+	/// retrieves the RNDR data from the Windows Registry.
+	pub fn get_registry_data() -> Result<RndrStats, Box<dyn std::error::Error>> {
 		let rndr_registry = Hive::CurrentUser
-			.open(r"Software\OTOY", Security::Read)
-			.unwrap();
+			.open(r"Software\OTOY", Security::Read).expect("could not read rndr registry");
 
 		// NOTE should expect these instead of an unwrap.
 		let last_beta_timestamp = rndr_registry
-			.value("LAST_BETA_LAUNCH_CHECK_TIMESTAMP")
-			.unwrap();
+			.value("LAST_BETA_LAUNCH_CHECK_TIMESTAMP")?;
 
 		let should_launch_beta =
-			rndr_registry.value("SHOULD_LAUNCH_BETA").unwrap();
+			rndr_registry.value("SHOULD_LAUNCH_BETA")?;
 
-		// TODO
-		// fix these so that we arent unwrapping on them, unwrap_or may be a more descriptive way of handling this.
-		let hw = rndr_registry.value("HW").unwrap();
-		let score = rndr_registry.value("SCORE").unwrap();
-		let node_id = rndr_registry.value("NODEID").unwrap();
-		let wallet_id = rndr_registry.value("WALLETID").unwrap();
-		let rndr_idle = rndr_registry.value("RNDR_IDLE").unwrap();
-		let starts_dual = rndr_registry.value("Starts_Dual").unwrap();
-		let runtime_dual = rndr_registry.value("Runtime_Dual").unwrap();
-		let runtime_rndr = rndr_registry.value("Runtime_RNDR").unwrap();
-		let restarts_rndr = rndr_registry.value("Restarts_RNDR").unwrap();
-		let jobs_completed = rndr_registry.value("JOBS_COMPLETED").unwrap();
+		let hw = rndr_registry.value("HW")?;
+		let score = rndr_registry.value("SCORE")?;
+		let node_id = rndr_registry.value("NODEID")?;
+		let wallet_id = rndr_registry.value("WALLETID")?;
+		let rndr_idle = rndr_registry.value("RNDR_IDLE")?;
+		let starts_dual = rndr_registry.value("Starts_Dual")?;
+		let runtime_dual = rndr_registry.value("Runtime_Dual")?;
+		let runtime_rndr = rndr_registry.value("Runtime_RNDR")?;
+		let restarts_rndr = rndr_registry.value("Restarts_RNDR")?;
+		let jobs_completed = rndr_registry.value("JOBS_COMPLETED")?;
+
 		let failure_metrics =
-			rndr_registry.value("FAILURE_METRICS").unwrap();
+			rndr_registry.value("FAILURE_METRICS")?;
+
 		let runtime_watchdog =
-			rndr_registry.value("Runtime_Watchdog").unwrap();
+			rndr_registry.value("Runtime_Watchdog")?;
 
 		let octane_gpu_settings =
-			rndr_registry.value("OCTANE_GPU_SETTINGS").unwrap();
+			rndr_registry.value("OCTANE_GPU_SETTINGS")?;
 
 		let rndr_stats = RndrStats {
 			hw: hw.to_string(),
@@ -73,6 +71,6 @@ impl RndrStats {
 				.to_string(),
 		};
 
-		rndr_stats
+		Ok(rndr_stats)
 	}
 }

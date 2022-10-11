@@ -19,7 +19,7 @@ impl RndrTime {
 	pub fn get_total_rndr_time() -> std::io::Result<f64> {
 		let mut rndr_times: Vec<f64> = vec![];
 
-		let reader = RndrReader::new_log_reader();
+		let reader = RndrReader::new_log_reader().expect("could not get reader");
 
 		for line in reader.lines() {
 			let split_line = line.as_ref().unwrap().splitn(4, " ");
@@ -59,7 +59,7 @@ impl RndrTime {
 	///  time_in_minutes - calculates the time spent rendering in minutes.
 	/// Returns f64
 	pub fn total_time_in_minutes() -> i64 {
-		let render_time = RndrTime::get_total_rndr_time().unwrap();
+		let render_time = RndrTime::get_total_rndr_time().expect("could not get total rendering time");
 		let time_in_minutes = render_time / 60.0;
 		time_in_minutes as i64
 	}

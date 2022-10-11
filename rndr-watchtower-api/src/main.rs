@@ -29,7 +29,7 @@ fn main() {
     tracing_subscriber::fmt::init();
 
 	let watch_duration = Duration::from_secs(4);
-	let registry_data = RndrStats::get_registry_data();
+	let registry_data = RndrStats::get_registry_data().expect("could not get registry data");
 	let rndrlog_watch_path = RndrReader::get_rndr_log_dir().unwrap();
 
 	let mut watcher = watcher(sx, watch_duration).unwrap();
@@ -43,8 +43,7 @@ fn main() {
 	// IDEA here. Should this be passed up to the user for clarification,
 	// or for link access?
 	info!("{}", rndrlog_watch_path);
-	info!("{:#?}", registry_data); // NOTE THIS SHOULD NOT BE PRINTED, ONLY PASS AN OK
-	info!("this is the log so far: \n {}", RndrReader::read_rndr_log());
+	info!("{:#?}", &registry_data); // NOTE THIS SHOULD NOT BE PRINTED, ONLY PASS AN OK
 
 	// NOTE this goes to the frontend through the app API,
 	// but probably good to be logging it as well.
