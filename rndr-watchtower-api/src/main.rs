@@ -8,6 +8,9 @@ mod stats;
 mod web_api;
 use stats::RndrStats;
 
+
+use tracing::{info, error, warn};
+
 use crate::{rndr_reader::RndrReader, rndr_time::RndrTime};
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -19,7 +22,11 @@ struct RndrLog {
 }
 
 fn main() {
+
 	let (sx, rx) = channel();
+
+    // start our tracing subscriber.
+    tracing_subscriber::fmt::init();
 
 	let watch_duration = Duration::from_secs(4);
 	let registry_data = RndrStats::get_registry_data();
@@ -33,15 +40,15 @@ fn main() {
 	);
 
 	// when the program starts for the firs time, print the whole files info as a string.
-	// IDEA here. Should this be passed up to the user for clarification, 
+	// IDEA here. Should this be passed up to the user for clarification,
 	// or for link access?
-	println!("{}", rndrlog_watch_path); 
-	println!("{:#?}", registry_data); // NOTE THIS SHOULD NOT BE PRINTED, ONLY PASS AN OK
-	println!("this is the log so far: \n {}", RndrReader::read_rndr_log());
+	info!("{}", rndrlog_watch_path);
+	info!("{:#?}", registry_data); // NOTE THIS SHOULD NOT BE PRINTED, ONLY PASS AN OK
+	info!("this is the log so far: \n {}", RndrReader::read_rndr_log());
 
 	// NOTE this goes to the frontend through the app API,
 	// but probably good to be logging it as well.
-	println!(
+	info!(
 		"minutes spent rendering: {:?}",
 		RndrTime::total_time_in_minutes()
 	);
@@ -49,53 +56,53 @@ fn main() {
 	loop {
 		match rx.recv() {
             /*
-			* Send: 
+			* Send:
 			* latest update RndrLog
 			* total jobs completed
 			*/
 			Ok(DebouncedEvent::Write(event)) => {
 				RndrReader::get_latest_update().unwrap(); 	// NOTE this goes to the frontend of the app.
-				println!("Write Event: {:#?}", event); 		// NOTE this can probably be removed, not sure if the end user want to see the event type.
-				println!(
+				info!("Write Event: {:#?}", event); 		// NOTE this can probably be removed, not sure if the end user want to see the event type.
+				info!(
 					"minutes spent rendering: {:?}\n",
 					RndrTime::total_time_in_minutes()
 				);
                 println!("jobs completed: {}", registry_data.jobs_completed);
 			}
             /*
-			 * Send: 
+			 * Send:
 			 * RndrLog latest update
 			 * total jobs completed.
 			 */
 			Ok(DebouncedEvent::Create(e)) => {
 				let path_buf = e.as_path();
-				println!("Create event called!: {:#?}", path_buf);
+				info!("Create event called!: {:#?}", path_buf);
 
-															
-				RndrReader::get_latest_update().unwrap();	// NOTE this goes to the frontend of the app. 
-				println!(
+
+				RndrReader::get_latest_update().unwrap();	// NOTE this goes to the frontend of the app.
+				info!(
 					"minutes spent rendering: {:?}\n",
 					RndrTime::total_time_in_minutes()
 				);
 			}
-			/* 
-			* Covers case of DebounceEvent errors, 
+			/*
+			* Covers case of DebounceEvent errors,
 			* NOT a match error.
 			*/
-			Ok(DebouncedEvent::Error(e, _)) => {
-				println!("{e}");
+			Ok(DebouncedEvent::Error(why, _)) => {
+				error!("{why:?}");
 			}
-			/* 
+			/*
 			* UNKNOWN DebounceEvent case, just in case it is useful.
-			* This may be taken out later, so keep this comment for reference. 
+			* This may be taken out later, so keep this comment for reference.
 			*/
 			Ok(event) => println!(
 				"event occured that is not covered in this scope.{:?}",
 				event
 			),
 
-			Err(e) => {
-				eprintln!("error occurred: {:?}", e);
+			Err(why) => {
+				error!("error occurred: {:?}", why);
 			}
 		}
 	}
