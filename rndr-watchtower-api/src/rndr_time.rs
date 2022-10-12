@@ -6,11 +6,11 @@ use std::error::Error;
 
 #[derive(Debug)]
 pub struct RndrLog {
+    pub render_time: f64,
 	pub date: String,
 	pub time: String,
+    pub msg: String,
 	pub status_code: String,
-	pub msg: String,
-	pub render_time: f64,
 }
 
 #[derive(Debug)]
@@ -23,8 +23,7 @@ impl RndrTime {
 		let reader = RndrReader::new_log_reader().expect("could not get reader");
 
 		for line in reader.lines() {
-			let split_line = line.as_ref().unwrap().splitn(4, " ");
-			let msg = split_line.last().unwrap();
+			let msg = line.as_ref().unwrap().splitn(4, " ").last().expect("could not get last line in msg");
 			let matched_lines = msg.matches("job completed successfully");
 			for _ in matched_lines {
 				let time_from_line =
@@ -32,12 +31,14 @@ impl RndrTime {
 				rndr_times.push(time_from_line);
 			}
 		}
+
 		let time_sum = rndr_times
 			.into_iter()
 			.reduce(|a, b| a + b)
 			.expect("could not sum the vec of render times");
 
 		let rounded_time = time_sum.round();
+
 		Ok(rounded_time)
 	}
 
@@ -58,7 +59,6 @@ impl RndrTime {
 	}
 
 	///  time_in_minutes - calculates the time spent rendering in minutes.
-	/// Returns f64
 	pub fn total_time_in_minutes() -> i64 {
 		let render_time = RndrTime::get_total_rndr_time().expect("could not get total rendering time");
 		let time_in_minutes = render_time / 60.0;
